@@ -25,16 +25,38 @@ function CountdownContent() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (targetDate) {
+      try {
+        const dateObj = new Date(targetDate);
+        if (!isNaN(dateObj.getTime())) {
+          const yyyy = dateObj.getFullYear();
+          const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const dd = String(dateObj.getDate()).padStart(2, '0');
+          setNewDate(`${yyyy}-${mm}-${dd}`);
+          
+          const hh = String(dateObj.getHours()).padStart(2, '0');
+          const min = String(dateObj.getMinutes()).padStart(2, '0');
+          setNewTime(`${hh}:${min}`);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [targetDate]);
+
+  useEffect(() => {
     setMounted(true);
     const urlDate = searchParams.get('date');
     if (urlDate) {
       setTargetDate(urlDate);
       localStorage.setItem('payday_date', urlDate);
+      setIsEditing(false);
     } else {
       const localDate = localStorage.getItem('payday_date');
       if (localDate) {
         setTargetDate(localDate);
         router.replace(`/?date=${localDate}`);
+        setIsEditing(false);
       } else {
         setIsEditing(true);
       }
